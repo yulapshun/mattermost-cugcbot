@@ -81,26 +81,28 @@ def banner():
 
 def get_banner(body_values, params):
     db = get_db()
-    cur = db.execute('SELECT * FROM banner ORDER BY updated_at DESC')
+    cur = db.execute('SELECT * FROM banner ORDER BY updated_at DESC LIMIT 3')
     entries = cur.fetchall()
     messages = []
     for entry in entries:
         messages.append({
             'message': entry['content'],
+            'created_by': entry['created_by'],
             'updated_at': entry['updated_at']
         })
     return json.dumps(messages)
 
 def add_banner(body_values, params):
-
+    created_by = body_values['user_name']
     current_time = int(time.time())
     content = params[1]
 
     db = get_db()
     db.execute(
-        'INSERT INTO banner (created_at, updated_at, content)' +
-        'VALUES (:created_at, :updated_at, :content)',
+        'INSERT INTO banner (created_by, created_at, updated_at, content)' +
+        'VALUES (:created_by, :created_at, :updated_at, :content)',
         {
+            'created_by': created_by,
             'created_at': current_time,
             'updated_at': current_time,
             'content': content
@@ -111,16 +113,16 @@ def add_banner(body_values, params):
 
 def view_banner(body_values, params):
     db = get_db()
-    cur = db.execute('SELECT * FROM banner ORDER BY updated_at')
+    cur = db.execute('SELECT * FROM banner ORDER BY updated_at DESC')
     entries = cur.fetchall()
     entry_str_arr = []
     for entry in entries:
         created_at = datetime.datetime.fromtimestamp(entry['created_at']).strftime('%Y-%m-%d %H:%M')
         updated_at = datetime.datetime.fromtimestamp(entry['created_at']).strftime('%Y-%m-%d %H:%M')
-        entry_str_arr.append('|'+str(entry['id'])+'|'+entry['content']+'|'+created_at+'|'+updated_at+'|')
+        entry_str_arr.append('|'+str(entry['id'])+'|'+entry['content']+'|'+entry['created_by']+'|'+created_at+'|'+updated_at+'|')
     return """
-|Id|Content|Created at|Updated at|
-|:-|:-|:-|:-|
+|Id|Content|Created by|Created at|Updated at|
+|:-|:-|:-|:-|:-|
     """ + '\n'.join(entry_str_arr)
 
 def remove_banner(body_values, params):
