@@ -70,6 +70,8 @@ def banner():
             response['text'] = view_banner(request.values, params)
         elif action == 'remove':
             response['text'] = remove_banner(request.values, params)
+        elif action == 'touch':
+            response['text'] = touch_banner(request.values, params)
         elif action == 'help':
             response['text'] = banner_help(request.values, params)
         else:
@@ -133,6 +135,14 @@ def remove_banner(body_values, params):
     db.commit()
     return 'Banner successfully deleted, refresh to see'
 
+def touch_banner(body_values, params):
+    banner_id = params[1]
+
+    db = get_db()
+    cur = db.execute('UPDATE banner SET updated_at=:updated_at WHERE id=:banner_id', {'updated_at': int(time.time()),'banner_id': banner_id})
+    db.commit()
+    return 'Banner updated time successfully updated, refresh to see'
+
 def banner_help(body_values, params):
     return """
 ## Banner Bot Usage
@@ -155,7 +165,11 @@ response:
 
 ### Remove banner
 Remove the banner with the given id
-command `/banner remove 1`
+command `/banner remove [banner_id]`
+
+### Put banner at the top
+Update updated at time of a banner
+command `/banner touch [banner_id]`
 
 ### Help
 Show this message
