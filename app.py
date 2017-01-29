@@ -71,8 +71,8 @@ def banner():
             response['text'] = view_banner(request.values, params)
         elif action == 'remove':
             response['text'] = remove_banner(request.values, params)
-        elif action == 'remove':
-            response['text'] = remove_banner(request.values, params)
+        elif action == 'help':
+            response['text'] = banner_help(request.values, params)
         else:
             response = {
                 'response_type': 'ephemeral',
@@ -131,6 +131,35 @@ def remove_banner(body_values, params):
     cur = db.execute('DELETE FROM banner WHERE id=:banner_id', {'banner_id': banner_id})
     db.commit()
     return 'Banner successfully deleted, refresh to see'
+
+def banner_help(body_values, params):
+    return """
+## Banner Bot Usage
+
+### Add banner
+Add a banner to show at the top
+command `/banner add [quoted banner content]`
+e.g. `/banner add "Happy new year!"`
+
+### View banners
+Show all banners in a table
+command `/banner view`
+
+response:
+
+|Id|Content|Created at|Updated at|
+|:-|:-|:-|:-|
+|1|Merry Christmas!|2016-12-25 00:15|2017-12-25 00:31|
+|2|Happy new year!|2017-01-29 10:22|2017-01-29 10:22|
+
+### Remove banner
+Remove the banner with the given id
+command `/banner remove 1`
+
+### Help
+Show this message
+command `/banner help`
+    """
 
 if __name__ == "__main__":
     with app.app_context():
