@@ -49,37 +49,49 @@ def test():
 
 @app.route('/banner', methods=['POST'])
 def banner():
-    token = request.values['token']
-    if token == BANNER_BOT_TOKEN:
-        params = shlex.split(request.values['text'])
+    try:
+        token = request.values['token']
+        if token == BANNER_BOT_TOKEN:
+            params = shlex.split(request.values['text'])
 
-        if len(params) == 0:
-            return json.dumps({
-                'response_type': 'ephemeral',
-                'text': get_banner(request.values, params)
-            })
-        action = params[0]
-        response = {
-            'response_type': 'ephemeral',
-            'text': 'banner added'
-        }
-
-        if action == 'add':
-            response['text'] = add_banner(request.values, params)
-        elif action == 'view':
-            response['text'] = view_banner(request.values, params)
-        elif action == 'remove':
-            response['text'] = remove_banner(request.values, params)
-        elif action == 'touch':
-            response['text'] = touch_banner(request.values, params)
-        elif action == 'help':
-            response['text'] = banner_help(request.values, params)
-        else:
+            if len(params) == 0:
+                return json.dumps({
+                    'response_type': 'ephemeral',
+                    'text': get_banner(request.values, params)
+                })
+            action = params[0]
             response = {
                 'response_type': 'ephemeral',
-                'text': 'Invalid command'
+                'text': 'Unknown command'
             }
-        return json.dumps(response)
+
+            if action == 'add':
+                response['text'] = add_banner(request.values, params)
+            elif action == 'view':
+                response['text'] = view_banner(request.values, params)
+            elif action == 'remove':
+                response['text'] = remove_banner(request.values, params)
+            elif action == 'touch':
+                response['text'] = touch_banner(request.values, params)
+            elif action == 'help':
+                response['text'] = banner_help(request.values, params)
+            else:
+                response = {
+                    'response_type': 'ephemeral',
+                    'text': 'Invalid command'
+                }
+            return json.dumps(response)
+        else:
+            return json.dumps({
+                'response_type': 'ephemeral',
+                'text': 'Invalid token'
+            })
+    except Exception as e:
+        print(e.message)
+        return json.dumps({
+            'response_type': 'ephemeral',
+            'text': 'Error while executing command'
+        })
 
 def get_banner(body_values, params):
     db = get_db()
@@ -95,6 +107,8 @@ def get_banner(body_values, params):
     return json.dumps(messages)
 
 def add_banner(body_values, params):
+    if len(params) < 2:
+        return 'No message given'
     created_by = body_values['user_name']
     current_time = int(time.time())
     content = params[1]
@@ -117,6 +131,8 @@ def view_banner(body_values, params):
     db = get_db()
     cur = db.execute('SELECT * FROM banner ORDER BY updated_at DESC')
     entries = cur.fetchall()
+    if len(entries) == 0:
+        return 'No banner'
     entry_str_arr = []
     for entry in entries:
         created_at = datetime.datetime.fromtimestamp(entry['created_at']).strftime('%Y-%m-%d %H:%M')
@@ -128,6 +144,8 @@ def view_banner(body_values, params):
     """ + '\n'.join(entry_str_arr)
 
 def remove_banner(body_values, params):
+    if len(params) < 2:
+        return 'No banner id given'
     banner_id = params[1]
 
     db = get_db()
@@ -136,6 +154,8 @@ def remove_banner(body_values, params):
     return 'Banner successfully deleted, refresh to see'
 
 def touch_banner(body_values, params):
+    if len(params) < 2:
+        return 'No banner id given'
     banner_id = params[1]
 
     db = get_db()
