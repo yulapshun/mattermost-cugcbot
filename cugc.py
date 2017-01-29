@@ -43,18 +43,22 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
+# For testing server is up and responding
 @app.route('/')
 def test():
     return 'It\'s working!!!'
 
+# TODO: separate each command into module
 @app.route('/banner', methods=['POST'])
 def banner():
     try:
+        # Token from mattermost, unique for each slash command
         token = request.values['token']
         if token == BANNER_BOT_TOKEN:
             params = shlex.split(request.values['text'])
 
             if len(params) == 0:
+                # TODO: Not ideal, should assign an action for this
                 return json.dumps({
                     'response_type': 'ephemeral',
                     'text': get_banner(request.values, params)
@@ -93,6 +97,7 @@ def banner():
             'text': 'Error while executing command'
         })
 
+# Return json for UI display
 def get_banner(body_values, params):
     db = get_db()
     cur = db.execute('SELECT * FROM banner ORDER BY updated_at DESC LIMIT 3')
