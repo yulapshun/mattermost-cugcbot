@@ -1,4 +1,5 @@
 import configparser
+import datetime
 import json
 import os
 import requests
@@ -115,7 +116,9 @@ def view_banner(body_values, params):
     entries = cur.fetchall()
     entry_str_arr = []
     for entry in entries:
-        entry_str_arr.append('|'+str(entry['id'])+'|'+entry['content']+'|'+str(entry['created_at'])+'|'+str(entry['updated_at'])+'|')
+        created_at = datetime.datetime.fromtimestamp(entry['created_at']).strftime('%Y-%m-%d %H:%M')
+        updated_at = datetime.datetime.fromtimestamp(entry['created_at']).strftime('%Y-%m-%d %H:%M')
+        entry_str_arr.append('|'+str(entry['id'])+'|'+entry['content']+'|'+created_at+'|'+updated_at+'|')
     return """
 |Id|Content|Created at|Updated at|
 |:-|:-|:-|:-|
