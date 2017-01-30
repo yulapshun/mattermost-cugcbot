@@ -1,4 +1,4 @@
-from cugc import app
+from .cugc import app
 
 if __name__ == "__main__":
     app.run()
