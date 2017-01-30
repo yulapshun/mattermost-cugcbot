@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve mattermost-cugcbot
+After=network.target
+
+[Service]
+User=mattermost
+Group=www-data
+WorkingDirectory=[this directory]
+Environment="PATH=[this directory]/ENV/bin"
+ExecStart=[this directory]/ENV/bin/uwsgi --ini uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
