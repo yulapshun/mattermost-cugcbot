@@ -89,7 +89,7 @@ class Banner:
                 'content': content
             }
         )
-        db.commit();
+        db.commit()
         return 'Banner successfully added, refresh to see'
 
     def view_banner(self, body_values, params):
@@ -104,8 +104,8 @@ class Banner:
             updated_at = datetime.datetime.fromtimestamp(entry['created_at']).strftime('%Y-%m-%d %H:%M')
             entry_str_arr.append('|'+str(entry['id'])+'|'+entry['content']+'|'+entry['created_by']+'|'+created_at+'|'+updated_at+'|')
         return """
-    |Id|Content|Created by|Created at|Updated at|
-    |:-|:-|:-|:-|:-|
+|Id|Content|Created by|Created at|Updated at|
+|:-|:-|:-|:-|:-|
         """ + '\n'.join(entry_str_arr)
 
     def remove_banner(body_values, params):
