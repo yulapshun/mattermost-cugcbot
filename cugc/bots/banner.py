@@ -108,7 +108,7 @@ class Banner:
 |:-|:-|:-|:-|:-|
         """ + '\n'.join(entry_str_arr)
 
-    def remove_banner(body_values, params):
+    def remove_banner(self, body_values, params):
         if len(params) < 2:
             return 'No banner id given'
         banner_id = params[1]
