@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
-import cugc.bots.banner
+from cugc.bots import banner, task
 import cugc.utils.db
 
 app = Flask(__name__)
@@ -24,8 +24,10 @@ app.config.update(dict(
 ))
 
 BANNER_BOT_TOKEN = config['banner']['mattermost_token']
+TASK_BOT_TOKEN = config['task']['mattermost_token']
 
 banner_bot = cugc.bots.banner.Banner(app, BANNER_BOT_TOKEN)
+task_bot = cugc.bots.task.Task(app, TASK_BOT_TOKEN)
 
 def init_db():
     db = cugc.utils.db.get_db(app)
@@ -46,6 +48,10 @@ def test():
 @app.route('/banner', methods=['POST'])
 def banner():
     return banner_bot.run(request)
+
+@app.route('/task', methods=['POST'])
+def task():
+    return task_bot.run(request)
 
 with app.app_context():
     init_db()
