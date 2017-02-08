@@ -40,7 +40,7 @@ class Task:
                 elif action == 'edit':
                     response['text'] = 'Not implemented'
                 elif action == 'remove':
-                    response['text'] = 'Not implemented'
+                    response['text'] = self.remove_task(request.values, params)
                 elif action == 'help':
                     response['text'] = self.task_help()
                 return json.dumps(response)
@@ -140,6 +140,13 @@ New task created!
 |:-|:-|:-|:-|:-|:-|:-|:-|
         """ + '\n'.join(entry_str_arr)
         return text
+
+    def remove_task(self, body_values, params):
+        task_id = params[1]
+        db = cugc.utils.db.get_db(self.app)
+        cur = db.execute('DELETE FROM task WHERE id=:task_id', {'task_id':task_id})
+        db.commit()
+        return 'Task #{task_id} successfully removed'.format(task_id=task_id)
 
     def task_help(self):
         return """
