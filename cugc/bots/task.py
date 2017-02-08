@@ -163,8 +163,8 @@ e.g. `/task add 寫文 "Write something" "yulapshun" 2036-12-31`
 deadline in the format year-month-day
 
 ### View tasks
-Show all tasks for a user
-command `/task view [username]`
+Show all tasks or tasks assigned to a user
+command `/task view [username | all]`
 e.g. `/task view yulapshun`
 
 response:
@@ -172,6 +172,10 @@ response:
 |Id|Title|Description|Assigned to|Deadline|Created by|Created at|Updated at|
 |:-|:-|:-|:-|:-|:-|:-|:-|
 |1|寫文|Write something|@yulapshun|2036-12-31|@yulapshun|2016-02-02 00:15|2017-02-02 00:31|
+
+### Remove task
+Remove task
+command `/task remove [task id]`
 
 ### Help
 Show this message
