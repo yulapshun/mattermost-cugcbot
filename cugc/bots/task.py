@@ -117,7 +117,11 @@ New task created!
     def view_task(self, body_values, params):
         user_name = params[1]
         db = cugc.utils.db.get_db(self.app)
-        cur = db.execute('SELECT * FROM task WHERE assigned_to=:assigned_to', {'assigned_to':user_name})
+
+        if user_name == 'all':
+            cur = db.execute('SELECT * FROM task')
+        else:
+            cur = db.execute('SELECT * FROM task WHERE assigned_to=:assigned_to', {'assigned_to':user_name})
         entries = cur.fetchall()
         entry_str_arr = []
         for entry in entries:
