@@ -85,6 +85,11 @@ class Task:
                 'tags': tags_str
             }
         )
+        cur = db.execute('SELECT last_insert_rowid()')
+        task_id = ''
+        task_row = cur.fetchone()
+        if task_row is not None:
+            task_id = task_row[0]
         db.commit()
 
         text = """
@@ -99,7 +104,7 @@ New task created!
 |**description**|{description}|
 |**deadline**|{deadline}|
         """.format(
-            id=1,
+            id=task_id,
             title=title,
             created_by='@' + assigned_by,
             assigned_to='@' + assigned_to,
