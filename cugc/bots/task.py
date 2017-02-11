@@ -38,7 +38,7 @@ class Task:
                 elif action == 'view':
                     response['text'] = self.view_task(request.values, params)
                 elif action == 'edit':
-                    response['text'] = 'Not implemented'
+                    response['text'] = self.edit_task(request.values, params)
                 elif action == 'remove':
                     response['text'] = self.remove_task(request.values, params)
                 elif action == 'help':
@@ -145,6 +145,33 @@ New task created!
         """ + '\n'.join(entry_str_arr)
         return text
 
+    def edit_task(self, body_values, params):
+        task_id = params[1]
+        field = params[2]
+        value = params[3]
+
+        if field == 'title':
+            db_field = 'title'
+        elif field == 'desc':
+            db_field = 'description'
+        elif field == 'assign':
+            db_field = 'assigned_to'
+        elif 'deadline':
+            db_field = 'deadline'
+            value = int(datetime.datetime.strptime(value, '%Y-%m-%d').timestamp())
+
+        db = cugc.utils.db.get_db(self.app)
+        db.execute(
+            'UPDATE task SET {field} = :value, updated_at = :updated_at WHERE id = :task_id'.format(field=db_field),
+            {
+                'updated_at': int(time.time()),
+                'value': value,
+                'task_id': task_id
+            }
+        )
+        db.commit()
+        return "Task #{id} successfully updated!".format(id=task_id)
+
     def remove_task(self, body_values, params):
         task_id = params[1]
         db = cugc.utils.db.get_db(self.app)
@@ -172,6 +199,17 @@ response:
 |Id|Title|Description|Assigned to|Deadline|Created by|Created at|Updated at|
 |:-|:-|:-|:-|:-|:-|:-|:-|
 |1|寫文|Write something|@yulapshun|2036-12-31|@yulapshun|2016-02-02 00:15|2017-02-02 00:31|
+
+### Edit task
+Edit a task by its id
+command `/task edit [id] [title | desc | assign | deadline] [value]`
+
+Only task title, description, assign to and deadline can be edited
+desc = description
+assign = assigned to
+value is the value you want to update to
+
+e.g. `/task edit 1 title "Do something"`
 
 ### Remove task
 Remove task
