@@ -58,7 +58,7 @@ class Task:
 
     def add_task(self, body_values, params):
 
-        assigned_by = body_values['user_name']
+        created_by = body_values['user_name']
         current_time = int(time.time())
 
         title = params[1]
@@ -72,15 +72,16 @@ class Task:
 
         db = cugc.utils.db.get_db(self.app)
         db.execute(
-            'INSERT INTO task (created_at, updated_at, title, description, assigned_to, assigned_by, deadline, tags)' +
-            'VALUES (:created_at, :updated_at, :title, :description, :assigned_to, :assigned_by, :deadline, :tags)',
+            'INSERT INTO task (created_at, updated_at, title, description, assigned_to, created_by,updated_by, deadline, tags)' +
+            'VALUES (:created_at, :updated_at, :title, :description, :assigned_to, :created_by, :updated_by, :deadline, :tags)',
             {
                 'created_at': current_time,
                 'updated_at': current_time,
                 'title': title,
                 'description': description,
                 'assigned_to': assigned_to,
-                'assigned_by': assigned_by,
+                'created_by': created_by,
+                'updated_by': created_by,
                 'deadline': deadline,
                 'tags': tags_str
             }
@@ -106,7 +107,7 @@ New task created!
         """.format(
             id=task_id,
             title=title,
-            created_by='@' + assigned_by,
+            created_by='@' + created_by,
             assigned_to='@' + assigned_to,
             description=description,
             deadline=deadline_str,
@@ -127,25 +128,27 @@ New task created!
         for entry in entries:
             tags = entry['tags'].split(',')
             entry_str_arr.append(
-                '|{task_id}|{title}|{description}|{assigned_to}|{deadline}|{created_by}|{updated_at}|{created_at}|'.format(
+                '|{task_id}|{title}|{description}|{assigned_to}|{deadline}|{updated_by}|{created_by}|{updated_at}|{created_at}|'.format(
                     task_id=entry['id'],
                     title=entry['title'],
                     description=entry['description'],
                     assigned_to='@' + entry['assigned_to'],
                     deadline=cugc.utils.util.format_timestamp(entry['deadline']),
-                    created_by='@' + entry['assigned_by'],
+                    updated_by='@' + entry['updated_by'],
+                    created_by='@' + entry['created_by'],
                     updated_at=cugc.utils.util.format_timestamp(entry['updated_at']),
                     created_at=cugc.utils.util.format_timestamp(entry['created_at']),
                     #tags=', '.join(['#'+n for n in tags])
                 )
             )
         text = """
-|Id|Title|Description|Assigned to|Deadline|Created by|Updated at|Created at|
+|Id|Title|Description|Assigned to|Deadline|Updated by|Created by|Updated at|Created at|
 |:-|:-|:-|:-|:-|:-|:-|:-|
         """ + '\n'.join(entry_str_arr)
         return text
 
     def edit_task(self, body_values, params):
+        updated_by = body_values['user_name']
         task_id = params[1]
         field = params[2]
         value = params[3]
@@ -162,9 +165,10 @@ New task created!
 
         db = cugc.utils.db.get_db(self.app)
         db.execute(
-            'UPDATE task SET {field} = :value, updated_at = :updated_at WHERE id = :task_id'.format(field=db_field),
+            'UPDATE task SET {field} = :value, updated_at = :updated_at, updated_by = :updated_by WHERE id = :task_id'.format(field=db_field),
             {
                 'updated_at': int(time.time()),
+                'updated_by': updated_by,
                 'value': value,
                 'task_id': task_id
             }
