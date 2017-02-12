@@ -29,25 +29,30 @@ TASK_BOT_TOKEN = config['task']['mattermost_token']
 banner_bot = cugc.bots.banner.Banner(app, BANNER_BOT_TOKEN)
 task_bot = cugc.bots.task.Task(app, TASK_BOT_TOKEN)
 
+
 def init_db():
     db = cugc.utils.db.get_db(app)
     with app.open_resource('schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 
+
 @app.teardown_appcontext
 def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
 
 # For testing server is up and responding
 @app.route('/')
 def test():
     return 'It\'s working!!!'
 
+
 @app.route('/banner', methods=['POST'])
 def banner():
     return banner_bot.run(request)
+
 
 @app.route('/task', methods=['POST'])
 def task():

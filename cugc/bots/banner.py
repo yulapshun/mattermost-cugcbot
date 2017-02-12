@@ -6,6 +6,7 @@ import time
 import cugc.utils.db
 import cugc.utils.util
 
+
 class Banner:
     def __init__(self, app, BANNER_BOT_TOKEN):
         self.app = app
@@ -35,9 +36,11 @@ class Banner:
                 elif action == 'view':
                     response['text'] = self.view_banner(request.values, params)
                 elif action == 'remove':
-                    response['text'] = self.remove_banner(request.values, params)
+                    response['text'] = \
+                        self.remove_banner(request.values, params)
                 elif action == 'touch':
-                    response['text'] = self.touch_banner(request.values, params)
+                    response['text'] = \
+                        self.touch_banner(request.values, params)
                 elif action == 'help':
                     response['text'] = self.banner_help(request.values, params)
                 else:
@@ -61,7 +64,9 @@ class Banner:
     # Return json for UI display
     def get_banner(self, body_values, params):
         db = cugc.utils.db.get_db(self.app)
-        cur = db.execute('SELECT * FROM banner ORDER BY updated_at DESC LIMIT 3')
+        cur = db.execute(
+            'SELECT * FROM banner ORDER BY updated_at DESC LIMIT 3'
+        )
         entries = cur.fetchall()
         messages = []
         for entry in entries:
@@ -81,8 +86,8 @@ class Banner:
 
         db = cugc.utils.db.get_db(self.app)
         db.execute(
-            'INSERT INTO banner (created_by, created_at, updated_at, content)' +
-            'VALUES (:created_by, :created_at, :updated_at, :content)',
+            'INSERT INTO banner (created_by, created_at, updated_at, content) \
+            VALUES (:created_by, :created_at, :updated_at, :content)',
             {
                 'created_by': created_by,
                 'created_at': current_time,
@@ -103,7 +108,10 @@ class Banner:
         for entry in entries:
             created_at = cugc.utils.util.format_timestamp(entry['created_at'])
             updated_at = cugc.utils.util.format_timestamp(entry['created_at'])
-            entry_str_arr.append('|'+str(entry['id'])+'|'+entry['content']+'|'+entry['created_by']+'|'+created_at+'|'+updated_at+'|')
+            entry_str_arr.append(
+                '|' + str(entry['id']) + '|' + entry['content'] + '|' +
+                entry['created_by'] + '|' + created_at + '|' + updated_at + '|'
+            )
         return """
 |Id|Content|Created by|Created at|Updated at|
 |:-|:-|:-|:-|:-|
@@ -115,7 +123,10 @@ class Banner:
         banner_id = params[1]
 
         db = cugc.utils.db.get_db(self.app)
-        cur = db.execute('DELETE FROM banner WHERE id=:banner_id', {'banner_id': banner_id})
+        cur = db.execute(
+            'DELETE FROM banner WHERE id=:banner_id',
+            {'banner_id': banner_id}
+        )
         db.commit()
         return 'Banner successfully deleted, refresh to see'
 
@@ -125,7 +136,10 @@ class Banner:
         banner_id = params[1]
 
         db = cugc.utils.db.get_db(self.app)
-        cur = db.execute('UPDATE banner SET updated_at=:updated_at WHERE id=:banner_id', {'updated_at': int(time.time()),'banner_id': banner_id})
+        cur = db.execute(
+            'UPDATE banner SET updated_at=:updated_at WHERE id=:banner_id',
+            {'updated_at': int(time.time()), 'banner_id': banner_id}
+        )
         db.commit()
         return 'Banner updated time successfully updated, refresh to see'
 
