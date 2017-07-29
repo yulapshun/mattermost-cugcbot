@@ -47,6 +47,9 @@ class Voting:
                 elif action == 'delete':
                     response['text'] = \
                         self.delete_vote(request.values, params)
+                elif action == 'help':
+                    response['text'] = \
+                        self.help_vote()
                 return json.dumps(response)
             else:
                 return json.dumps({
@@ -230,3 +233,68 @@ Voting Name: {vote_name}
         db.commit()
 
         return 'Vote deleted. use /vote view to check.'
+
+    def help_vote(self):
+        return"""
+## Voting Bot Usage
+
+### 1. Create vote
+Create a vote to show at the top command /vote create [vote name] [“option1 option2 option 3”]
+e.g. /vote create 你估voting幾時搞掂 "今日 聽日 下世"
+
+Voting created!
+Created by: @wingo
+Voting Name: 你估voting幾時搞掂
+
+|Choice ID|Choice name|
+|:-|:-|
+|27|今日|
+|28|聽日|
+|29|下世|
+
+### 2. List vote
+Show all votes in a table and get their vote_id
+command /vote list
+
+|Vote ID|Created by|Time of creation|Vote Name|
+|:-|:-|:-|:-|
+|7|Wingo|2017-07-29|你估voting幾時搞掂
+|8|Wai|2017-07-30|幾時行K2
+
+
+### 3. View choice
+Show all choices in a specific vote with the vote_id
+Command /vote view [vote_id]
+e.g. /vote view 7
+
+|Choice ID|Choice name|Voters|Vote count|
+|:-|:-|:-|:-|
+|3|今日|Wingo Wai|2
+|4|聽日|None|0
+|5|下世|None|0
+
+
+### 4. Vote
+Cast a vote with the choice_id
+Cammand /vote vote [choice_id]
+e.g.
+/vote vote "4 5"
+or
+/vote vote 4
+/vote vote 5
+
+|Choice ID|Choice name|Voters|Vote count|
+|:-|:-|:-|:-|
+|3|今日|Wingo Wai|2
+|4|聽日|Wingo|1
+|5|下世|Wingo|1
+
+
+### 5. Delete voted choice
+Remove the voted choice with the given choice_id
+command /vote delete [option_id]
+
+### 6. Help
+Show this message
+command /vote help
+    """
