@@ -9,10 +9,25 @@ CREATE TABLE IF NOT EXISTS task (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
+  created_by TEXT NOT NULL,
+  updated_by INTEGER NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
-  assigned_by TEXT NOT NULL,
   assigned_to TEXT NOT NULL,
   deadline INTEGER NOT NULL,
   tags TEXT
+);
+CREATE TABLE IF NOT EXISTS voting (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_by TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  vote_name TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS choice (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  vote_id INTEGER NOT NULL,
+  choice_name TEXT NOT NULL,
+  voter TEXT NOT NULL,
+  vote_count INTEGER NOT NULL,
+  FOREIGN Key (vote_id) REFERENCES voting(id)
 );
