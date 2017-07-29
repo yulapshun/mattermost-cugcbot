@@ -43,7 +43,11 @@ class Voting:
                         self.view_vote(request.values, params)
                 elif action == 'list':
                     response['text'] = \
-                        self.list_vote(request.values, params)
+                        self.list_vote()
+                elif action == 'delete':
+                    response['text'] = \
+                        self.delete_vote(request.values, params)
+                return json.dumps(response)
             else:
                 return json.dumps({
                     'response_type': 'ephemeral',
@@ -59,7 +63,7 @@ class Voting:
 
     def create_vote(self, body_values, params):
         created_by = body_values['user_name']
-        created_at = datetime.datetime.now().strftime("%Y-%m-%d")
+        created_at = int(time.time())
         vote_name = params[1]
         choice = shlex.split(params[2])
 
@@ -76,11 +80,11 @@ class Voting:
         vote_id = ''
         cur = db.execute('SELECT last_insert_rowid()')
         if cur.fetchone is not None:
-            vote_id = cur.fetchone['id']
+            vote_id = cur.fetchone()[0]
             for x in choice:
                 db.execute(
                     'INSERT INTO choice (vote_id, choice_name)' + 'VALUES \
-                    (:vote_id, choice_name)',
+                    (:vote_id, :choice_name)',
                     {
                         'vote_id': vote_id,
                         'choice_name': x
@@ -101,12 +105,13 @@ class Voting:
                 )
             )
         text = """
-        Voting created!
-        Created by: {created_by}
-        Voting Name: {vote_name}
-        |Choice ID|Choice name|
-        |:-|:-|
-        """.format(
+Voting created!
+Created by: {created_by}
+Voting Name: {vote_name}
+
+|Choice ID|Choice name|
+|:-|:-|
+""".format(
                 created_by = '@' + created_by, vote_name = vote_name
             ) + '\n'.join(entry_str_arr)
         return text
@@ -127,14 +132,19 @@ class Voting:
             if task_row is not None:
                 voter = task_row[3]
                 vote_count = task_row[4]
-                voter = voter +' @'+ voted_by
-                vote_count += 1
+                if voter is None:
+                    voter = '@'+ voted_by
+                else: voter = voter +' @'+ voted_by
+                if vote_count is None:
+                    vote_count = 1
+                else: vote_count += 1
                 db.execute(
                     'UPDATE choice SET voter = :voter, vote_count = :vote_count\
                     WHERE id = :choice',
                     {
                         'voter': voter,
-                        'vote_count': vote_count
+                        'vote_count': vote_count,
+                        'choice': choice
                     }
                 )
                 db.commit()
@@ -163,12 +173,12 @@ class Voting:
                 )
             )
         text = '''
-        |Choice ID|Choice Name|Voters|vote_count|
-        |:-|:-|:-|:-|
+|Choice ID|Choice Name|Voters|vote_count|
+|:-|:-|:-|:-|
         ''' + '\n'.join(entry_str_arr)
         return text
 
-    def list_vote(self, body_values):
+    def list_vote(self):
         db = cugc.utils.db.get_db(self.app)
         cur = db.execute('SELECT * FROM voting')
         entries = cur.fetchall()
@@ -177,7 +187,7 @@ class Voting:
             entry_str_arr.append(
                 '|{id}|{created_by}|{created_at}|{vote_name}|'.format(
                     id = entry['id'],
-                    created_by = '@' + entry['created_by'],
+                    created_by = entry['created_by'],
                     created_at = cugc.utils.util.format_timestamp(
                         entry['created_at']
                     ),
@@ -185,6 +195,38 @@ class Voting:
                 )
             )
         text = '''
-            |Vote ID|Created by|Time of creation|Vote Name|
-            |:-|:-|:-|:-|''' + '\n'.join(entry_str_arr)
+|Vote ID|Created by|Time of creation|Vote Name|
+|:-|:-|:-|:-|
+        ''' + '\n'.join(entry_str_arr)
         return text
+
+    def delete_vote(self, body_values, params):
+        db = cugc.utils.db.get_db(self.app)
+        delete_id = params[1]
+        cur = db.execute(
+            'SELECT * FROM choice WHERE id = :delete_id',
+            {'delete_id': delete_id}
+        )
+        delete_row = cur.fetchone()
+        vote_count = delete_row['vote_count']
+        voter = delete_row['voter']
+        voter_arr = shlex.split(voter)
+        new_arr = []
+        for name in voter_arr:
+            if name[1:] == body_values['user_name']:
+                vote_count = vote_count - 1
+            else:
+                new_arr.append(name)
+        new_arr = ' '.join(new_arr)
+        db.execute(
+            'UPDATE choice SET voter = :new_arr, vote_count = :vote_count\
+            WHERE id = :delete_id',
+            {
+                'new_arr': new_arr,
+                'vote_count': vote_count,
+                'delete_id': delete_id
+            }
+        )
+        db.commit()
+
+        return 'Vote deleted. use /vote view to check.'

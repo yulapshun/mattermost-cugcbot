@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS choice (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   vote_id INTEGER NOT NULL,
   choice_name TEXT NOT NULL,
-  voter TEXT NOT NULL,
-  vote_count INTEGER NOT NULL,
+  voter TEXT,
+  vote_count INTEGER,
   FOREIGN Key (vote_id) REFERENCES voting(id)
 );
