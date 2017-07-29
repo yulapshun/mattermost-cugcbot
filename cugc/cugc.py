@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
-from cugc.bots import banner, task
+from cugc.bots import voting, banner, task
 import cugc.utils.db
 
 app = Flask(__name__)
@@ -25,9 +25,12 @@ app.config.update(dict(
 
 BANNER_BOT_TOKEN = config['banner']['mattermost_token']
 TASK_BOT_TOKEN = config['task']['mattermost_token']
+VOTING_BOT_TOKEN = config['voting']['mattermost_token']
 
 banner_bot = cugc.bots.banner.Banner(app, BANNER_BOT_TOKEN)
 task_bot = cugc.bots.task.Task(app, TASK_BOT_TOKEN)
+voting_bot = cugc.bots.voting.Voting(app, VOTING_BOT_TOKEN)
+
 
 
 def init_db():
@@ -57,6 +60,10 @@ def banner():
 @app.route('/task', methods=['POST'])
 def task():
     return task_bot.run(request)
+
+@app.route('/voting', methods=['POST'])
+def voting():
+    return voting_bot.run(request)
 
 with app.app_context():
     init_db()

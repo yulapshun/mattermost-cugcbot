@@ -17,3 +17,17 @@ CREATE TABLE IF NOT EXISTS task (
   deadline INTEGER NOT NULL,
   tags TEXT
 );
+CREATE TABLE IF NOT EXISTS voting (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_by TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  vote_name TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS choice (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  vote_id INTEGER NOT NULL,
+  choice_name TEXT NOT NULL,
+  voter TEXT,
+  vote_count INTEGER,
+  FOREIGN Key (vote_id) REFERENCES voting(id)
+);
