@@ -1,9 +1,9 @@
 import datetime
-import json
 import shlex
 import time
 import requests
 from urllib.parse import urljoin
+from flask import jsonify
 
 import cugc.utils.db
 import cugc.utils.util
@@ -20,7 +20,7 @@ class Voting:
                 params = shlex.split(request.values['text'])
 
                 if len(params) == 0:
-                    return json.dumps({
+                    return jsonify({
                         'response_type': 'ephemeral',
                         'text': 'No action given'
                     })
@@ -50,15 +50,15 @@ class Voting:
                 elif action == 'help':
                     response['text'] = \
                         self.help_vote()
-                return json.dumps(response)
+                return jsonify(response)
             else:
-                return json.dumps({
+                return jsonify({
                     'response_type': 'ephemeral',
                     'text': 'Error while executing command'
                 })
         except Exception as e:
             print(e)
-            return json.dumps({
+            return jsonify({
                 'response_type': 'ephemeral',
                 'text': 'Error while executing command'
             })

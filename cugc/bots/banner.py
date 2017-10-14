@@ -2,6 +2,7 @@ import datetime
 import json
 import shlex
 import time
+from flask import jsonify
 
 import cugc.utils.db
 import cugc.utils.util
@@ -21,7 +22,7 @@ class Banner:
 
                 if len(params) == 0:
                     # TODO: Not ideal, should assign an action for this
-                    return json.dumps({
+                    return jsonify({
                         'response_type': 'ephemeral',
                         'text': self.get_banner(request.values, params)
                     })
@@ -48,15 +49,15 @@ class Banner:
                         'response_type': 'ephemeral',
                         'text': 'Invalid command'
                     }
-                return json.dumps(response)
+                return jsonify(response)
             else:
-                return json.dumps({
+                return jsonify({
                     'response_type': 'ephemeral',
                     'text': 'Invalid token'
                 })
         except Exception as e:
             print(e)
-            return json.dumps({
+            return jsonify({
                 'response_type': 'ephemeral',
                 'text': 'Error while executing command'
             })
