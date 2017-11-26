@@ -1,0 +1,19 @@
+version: "2"
+
+services:
+  app:
+    image: yulapshun/mattermost-cugcbot:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uwsgi.ini:/root/uwsgi.ini
+      - ./config.ini:/root/config.ini
+      - ./cugc:/root/cugc/
+    env_file: .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20M"
+        max-file: "10"
+    mem_limit: ${DOCKER_MEM}
+    command: uwsgi --ini uwsgi.ini
