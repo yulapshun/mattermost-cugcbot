@@ -11,4 +11,10 @@ RUN apk add --no-cache --virtual .build-deps \
     pcre-dev && \
     pip install -r requirements.txt
 
-CMD python
+COPY uwsgi.ini /root/uwsgi.ini
+COPY config.ini /root/config.ini
+COPY cugc /root/cugc
+
+COPY start_up.sh /
+COPY init.py /
+ENTRYPOINT ["/start_up.sh"]
