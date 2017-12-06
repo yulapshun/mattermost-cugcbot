@@ -1,4 +1,4 @@
 #!/bin/sh
 
-python init.py
+python /init.py
 uwsgi --ini uwsgi.ini
