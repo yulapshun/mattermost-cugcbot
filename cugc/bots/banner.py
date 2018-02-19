@@ -66,7 +66,7 @@ class Banner:
     def get_banner(self, body_values, params):
         db = cugc.utils.db.get_db(self.app)
         cur = db.execute(
-            'SELECT * FROM banner ORDER BY updated_at DESC LIMIT 3'
+            'SELECT * FROM banner ORDER BY updated_at DESC LIMIT 4'
         )
         entries = cur.fetchall()
         messages = []
